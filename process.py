@@ -1,4 +1,8 @@
 import xml.etree.ElementTree as ET
+from typing import Iterable
+
+TARGET_WIDTH = 480
+TARGET_HEIGHT = 150
 
 class BoundingRect:
     def __init__(self, x1, y1, x2, y2):
@@ -7,7 +11,12 @@ class BoundingRect:
         self.x2 = x2
         self.y2 = y2
 
-def calculate_bounds(paths):
+
+def calculate_bounds(paths: Iterable) -> BoundingRect:
+    """
+    Calculate the bounding box of a list of SVG paths in a way that's aware of
+    more complex objects like Bézier curves
+    """
     min_x = float('inf')
     min_y = float('inf')
     max_x = float('-inf')
@@ -27,9 +36,14 @@ def calculate_bounds(paths):
             max_y = max(max_y, bbox[3])
 
     return BoundingRect(min_x, min_y, max_x, max_y)
-def extract_paths(input):
+
+
+def extract_paths(input_file: str) -> Iterable:
+    """
+    Extract SVG paths from a given file path
+    """
     # Parse the SVG file
-    tree = ET.parse(input)
+    tree = ET.parse(input_file)
     root = tree.getroot()
 
     # Dictionary to store fill colors and their class names
@@ -66,14 +80,15 @@ if __name__ == '__main__':
     # Calculate scale factors to fit in 480x150 while preserving aspect ratio
     width = bounds.x2 - bounds.x1
     height = bounds.y2 - bounds.y1
-    scale_x = 480 / width
-    scale_y = 150 / height
+    scale_x = TARGET_WIDTH / width
+    scale_y = TARGET_HEIGHT / height
     scale = min(scale_x, scale_y)
 
-    room_x = 480 - width*scale
-    room_y = 150 - height*scale
+    # One axis might have leftover space. Find that so we can center
+    room_x = TARGET_WIDTH - width*scale
+    room_y = TARGET_HEIGHT - height*scale
 
-    # Create group element with transform
+    # Apply a transform to the group to fit the logo into the desired box
     group = ET.Element('g')
     group.set('transform', f'translate({-bounds.x1 + room_x / 2},{-bounds.y1 + room_y / 2}) scale({scale})')
 
