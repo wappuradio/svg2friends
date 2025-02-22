@@ -27,9 +27,9 @@ def calculate_bounds(paths):
             max_y = max(max_y, bbox[3])
 
     return BoundingRect(min_x, min_y, max_x, max_y)
-def extract_paths():
+def extract_paths(input):
     # Parse the SVG file
-    tree = ET.parse('example.svg')
+    tree = ET.parse(input)
     root = tree.getroot()
 
     # Dictionary to store fill colors and their class names
@@ -57,7 +57,10 @@ def extract_paths():
 
 
 if __name__ == '__main__':
-    paths = extract_paths()
+    input_file = "example.svg"
+    output_file = "paths_only.svg"
+
+    paths = extract_paths(input_file)
     bounds = calculate_bounds(paths)
 
     # Calculate scale factors to fit in 480x150 while preserving aspect ratio
@@ -80,4 +83,6 @@ if __name__ == '__main__':
     # Create new tree and write to file
     new_tree = ET.ElementTree(group)
     ET.indent(new_tree, space='  ')
-    new_tree.write('paths_only.svg', encoding='utf-8', xml_declaration=True)
+    new_tree.write(output_file, encoding='utf-8', xml_declaration=True)
+    
+    print(f"Processed {input_file} into {output_file}")
