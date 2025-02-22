@@ -83,6 +83,6 @@ if __name__ == '__main__':
     # Create new tree and write to file
     new_tree = ET.ElementTree(group)
     ET.indent(new_tree, space='  ')
-    new_tree.write(output_file, encoding='utf-8', xml_declaration=True)
-    
+    new_tree.write(output_file, encoding='utf-8', xml_declaration=False)
+
     print(f"Processed {input_file} into {output_file}")
