@@ -65,7 +65,6 @@ if __name__ == '__main__':
 
     paths = extract_paths()
     bounds = calculate_bounds(paths)
-    print(f"Bounding rectangle: (x1={bounds.x1}, y1={bounds.y1}, x2={bounds.x2}, y2={bounds.y2})")
 
     # Calculate scale factors to fit in 480x150 while preserving aspect ratio
     width = bounds.x2 - bounds.x1
@@ -76,8 +75,6 @@ if __name__ == '__main__':
 
     room_x = 480 - width*scale
     room_y = 150 - height*scale
-
-    print(width, width*scale, room_x)
 
     # Create group element with transform
     group = ET.Element('g')
