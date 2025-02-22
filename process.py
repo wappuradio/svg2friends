@@ -74,9 +74,14 @@ if __name__ == '__main__':
     scale_y = 150 / height
     scale = min(scale_x, scale_y)
 
+    room_x = 480 - width*scale
+    room_y = 150 - height*scale
+
+    print(width, width*scale, room_x)
+
     # Create group element with transform
     group = ET.Element('g')
-    group.set('transform', f'translate({-bounds.x1},{-bounds.y1}) scale({scale})')
+    group.set('transform', f'translate({-bounds.x1 + room_x / 2},{-bounds.y1 + room_y / 2}) scale({scale})')
 
     for path in paths:
         group.append(path)
