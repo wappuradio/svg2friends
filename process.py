@@ -13,31 +13,20 @@ def calculate_bounds(paths):
     max_x = float('-inf')
     max_y = float('-inf')
 
+    from svgpathtools import parse_path
+
     for path in paths:
         if 'd' in path.attrib:
-            # Basic parsing of path data to find coordinates
-            d = path.get('d')
-            coords = []
-            for cmd in d.split():
-                try:
-                    x, y = map(float, cmd.split(','))
-                    coords.append((x, y))
-                except:
-                    continue
+            # Parse path and get bounding box
+            parsed_path = parse_path(path.get('d'))
+            bbox = parsed_path.bbox()
 
-            if coords:
-                path_min_x = min(x for x, y in coords)
-                path_min_y = min(y for x, y in coords)
-                path_max_x = max(x for x, y in coords)
-                path_max_y = max(y for x, y in coords)
-
-                min_x = min(min_x, path_min_x)
-                min_y = min(min_y, path_min_y)
-                max_x = max(max_x, path_max_x)
-                max_y = max(max_y, path_max_y)
+            min_x = min(min_x, bbox[0])
+            min_y = min(min_y, bbox[2])
+            max_x = max(max_x, bbox[1])
+            max_y = max(max_y, bbox[3])
 
     return BoundingRect(min_x, min_y, max_x, max_y)
-
 def extract_paths():
     # Parse the SVG file
     tree = ET.parse('example.svg')
@@ -71,13 +60,28 @@ if __name__ == '__main__':
     # Create new root element for output
     new_root = ET.Element('svg')
     new_root.set('xmlns', 'http://www.w3.org/2000/svg')
+    new_root.set('width', '480')
+    new_root.set('height', '150')
 
     paths = extract_paths()
     bounds = calculate_bounds(paths)
     print(f"Bounding rectangle: (x1={bounds.x1}, y1={bounds.y1}, x2={bounds.x2}, y2={bounds.y2})")
 
+    # Calculate scale factors to fit in 480x150 while preserving aspect ratio
+    width = bounds.x2 - bounds.x1
+    height = bounds.y2 - bounds.y1
+    scale_x = 480 / width
+    scale_y = 150 / height
+    scale = min(scale_x, scale_y)
+
+    # Create group element with transform
+    group = ET.Element('g')
+    group.set('transform', f'translate({-bounds.x1},{-bounds.y1}) scale({scale})')
+
     for path in paths:
-        new_root.append(path)
+        group.append(path)
+
+    new_root.append(group)
 
     # Create new tree and write to file
     new_tree = ET.ElementTree(new_root)
