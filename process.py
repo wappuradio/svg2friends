@@ -57,12 +57,6 @@ def extract_paths():
 
 
 if __name__ == '__main__':
-    # Create new root element for output
-    new_root = ET.Element('svg')
-    new_root.set('xmlns', 'http://www.w3.org/2000/svg')
-    new_root.set('width', '480')
-    new_root.set('height', '150')
-
     paths = extract_paths()
     bounds = calculate_bounds(paths)
 
@@ -83,9 +77,7 @@ if __name__ == '__main__':
     for path in paths:
         group.append(path)
 
-    new_root.append(group)
-
     # Create new tree and write to file
-    new_tree = ET.ElementTree(new_root)
+    new_tree = ET.ElementTree(group)
     ET.indent(new_tree, space='  ')
     new_tree.write('paths_only.svg', encoding='utf-8', xml_declaration=True)
